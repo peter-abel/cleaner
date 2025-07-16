@@ -1,0 +1,67 @@
+{% extends "cleaner/base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Processing: {{ job.file_upload.original_filename }}</h4>
+            </div>
+            <div class="card-body text-center">
+                <div id="processingStatus">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="lead">Cleaning your data...</p>
+                    <p>This may take a few moments depending on file size and options selected.</p>
+                </div>
+
+                <div class="progress mt-4">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%">
+                        0%
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Check processing status every 2 seconds
+function checkStatus() {
+    fetch(window.location.href, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update progress bar
+        const progressBar = document.getElementById('progressBar');
+        progressBar.style.width = data.progress + '%';
+        progressBar.textContent = data.progress + '%';
+
+        // Handle completion or error
+        if (data.status === 'completed') {
+            window.location.href = "{% url 'results_view' job.id %}";
+        } else if (data.status === 'failed') {
+            document.getElementById('processingStatus').innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>Processing Failed</h5>
+                    <p>${data.error || 'An unknown error occurred'}</p>
+                </div>
+            `;
+            document.getElementById('progressBar').classList.remove('progress-bar-animated');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Initial check and set interval
+checkStatus();
+setInterval(checkStatus, 2000);
+</script>
+{% endblock %}

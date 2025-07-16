@@ -1,0 +1,41 @@
+{% extends "cleaner/base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Analyzing File: {{ file_upload.original_filename }}</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="lead">Analyzing your CSV file...</p>
+                <p>This may take a few moments depending on file size.</p>
+                
+                <div class="progress mt-4">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 100%">
+                        Processing
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Check analysis status every 2 seconds
+setInterval(function() {
+    fetch(window.location.href)
+    .then(response => response.text())
+    .then(html => {
+        // If the page contains the analyze form, redirect to it
+        if (html.includes('analyze-form')) {
+            window.location.reload();
+        }
+    });
+}, 2000);
+</script>
+{% endblock %}

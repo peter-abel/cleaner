@@ -1,0 +1,67 @@
+{% extends "cleaner/base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Processing Complete: {{ job.file_upload.original_filename }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h5>Data Cleaning Successful!</h5>
+                    <p>Your file has been processed with the selected cleaning options.</p>
+                </div>
+
+                <!-- Cleaning Report -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5>Cleaning Report</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for step in cleaning_report.cleaning_steps %}
+                            <li class="list-group-item">{{ step }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Download Options -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Download Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if job.cleaned_file_path %}
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'download_file' job.id 'cleaned' %}" 
+                                   class="btn btn-success w-100">
+                                    <i class="bi bi-file-earmark-arrow-down"></i> Download Cleaned Data
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if job.numeric_file_path %}
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'download_file' job.id 'numeric' %}" 
+                                   class="btn btn-primary w-100">
+                                    <i class="bi bi-file-earmark-bar-graph"></i> Download Numeric Data
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'upload_view' %}" class="btn btn-outline-secondary">
+                        Process Another File
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

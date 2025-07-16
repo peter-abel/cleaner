@@ -1,0 +1,132 @@
+{% extends "cleaner/base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Analysis Results: {{ file_upload.original_filename }}</h4>
+            </div>
+            <div class="card-body">
+                <form id="analyze-form" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Data Summary -->
+                        <div class="col-md-6">
+                            <div class="card analysis-card">
+                                <div class="card-header bg-info text-white">
+                                    <h5>File Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                            <strong>Rows:</strong> {{ analysis.total_rows }}
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Columns:</strong> {{ analysis.total_columns }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Missing Values -->
+                        <div class="col-md-6">
+                            <div class="card analysis-card">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5>Missing Values</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for col, info in missing_values.items %}
+                                    <div class="mb-2">
+                                        <strong>{{ col }}:</strong> 
+                                        {{ info.count }} ({{ info.percentage }}%)
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cleaning Options -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h5>Cleaning Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Feature Engineering -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="featureEngineering" name="feature_engineering">
+                                <label class="form-check-label" for="featureEngineering">
+                                    Enable Feature Engineering
+                                </label>
+                            </div>
+
+                            <!-- Encoding Method -->
+                            <div class="mb-3">
+                                <label class="form-label">Categorical Encoding:</label>
+                                <select class="form-select" name="encoding_method">
+                                    <option value="">No Encoding</option>
+                                    <option value="label">Label Encoding</option>
+                                    <option value="onehot">One-Hot Encoding</option>
+                                </select>
+                            </div>
+
+                            <!-- Scaling Method -->
+                            <div class="mb-3">
+                                <label class="form-label">Numeric Scaling:</label>
+                                <select class="form-select" name="scaling_method">
+                                    <option value="">No Scaling</option>
+                                    <option value="standard">Standard Scaling</option>
+                                    <option value="minmax">Min-Max Scaling</option>
+                                    <option value="robust">Robust Scaling</option>
+                                </select>
+                            </div>
+
+                            <!-- Outlier Handling -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="removeOutliers" name="remove_outliers">
+                                <label class="form-check-label" for="removeOutliers">
+                                    Remove Outliers
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Process Data
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if debug_info %}
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5>Debug Information</h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-light p-3">{% for info in debug_info %}{{ info }}
+{% endfor %}</pre>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
